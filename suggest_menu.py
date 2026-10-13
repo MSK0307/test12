@@ -13,7 +13,7 @@ from datetime import datetime
 import anthropic
 from openpyxl.styles import Alignment, Font, PatternFill
 
-from analyze_menu import COLUMNS, DB_PATH, SCHEMA, open_db, request_json
+from analyze_menu import ANALYSIS_COLUMNS, COLUMNS, DB_PATH, SCHEMA, open_db, request_json
 
 SUGGEST_SHEET = "提案"
 SUGGEST_HEADERS = ["提案日時", "条件", "提案理由", "作り方の概要"]
@@ -63,7 +63,7 @@ def open_suggest_sheet(wb):
     if SUGGEST_SHEET in wb.sheetnames:
         return wb[SUGGEST_SHEET]
     ws = wb.create_sheet(SUGGEST_SHEET)
-    ws.append(["メニュー名", *SUGGEST_HEADERS, *[h for h, _ in COLUMNS[1:-1]]])
+    ws.append(["メニュー名", *SUGGEST_HEADERS, *[h for h, _ in ANALYSIS_COLUMNS]])
     for cell in ws[1]:
         cell.font = Font(bold=True, color="FFFFFF")
         cell.fill = PatternFill("solid", fgColor="7A5C4F")
@@ -120,7 +120,7 @@ def main() -> int:
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
     for i, p in enumerate(proposals, start=1):
         analysis = [get(p["name"], p) for _, get in COLUMNS]
-        suggest_ws.append([p["name"], now, condition, p["reason"], p["recipe"], *analysis[1:-1]])
+        suggest_ws.append([p["name"], now, condition, p["reason"], p["recipe"], *[get(p["name"], p) for _, get in ANALYSIS_COLUMNS]])
         if args.add:
             ws.append(analysis)
         print(f"{i}. {p['name']}  （{p['dish_form']} / 柔らかさ {p['softness']} / "

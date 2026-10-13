@@ -9,13 +9,13 @@
 - 技術スタック: Python 3.13 / anthropic SDK / openpyxl
 - `analyze_menu.py`: 本体（分類の選択肢・Excel の列・プロンプトはファイル冒頭の定数で定義）
 - `suggest_menu.py`: DB を参考に新メニューを提案し、`menu_db.xlsx` の「提案」シートに保存（API 呼び出しは `analyze_menu.request_json` を共用）
-- `menus.txt`: 一括分析用のメニュー一覧（1行1メニュー）
+- `menus.csv`: 一括登録用のサンプル（列: 料理名,材料,調味料。材料・調味料は空欄可、UTF-8 / Shift_JIS 両対応）
 
 ## 開発コマンド
 
 <!-- 例: ビルド・テスト・Lint などのコマンドが決まったら追記する -->
 - セットアップ: `pip install -r requirements.txt`（実行には環境変数 `ANTHROPIC_API_KEY` が必要）
-- 実行: `python analyze_menu.py 肉じゃが 鯖の味噌煮` / `python analyze_menu.py -f menus.txt`（`--force` で再分析）
+- 実行: `python analyze_menu.py`（入力フォーム: 料理名[必須]・材料・調味料） / `python analyze_menu.py -f menus.csv`（`--force` で再分析）
 - 提案: `python suggest_menu.py "柔らかめの魚料理" -n 3`（条件は省略可、`--add` でメインDBにも登録）
 - テスト: 未定
 - Lint / フォーマット: 未定
