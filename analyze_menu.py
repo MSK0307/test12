@@ -89,25 +89,31 @@ SYSTEM_PROMPT = """あなたは料理の分析担当です。メニュー名か�
 - メニュー名があいまいな場合は、最も一般的な解釈で答え、その前提を notes に書く。"""
 
 
-def analyze(client: anthropic.Anthropic, menu_name: str) -> dict:
+def request_json(client: anthropic.Anthropic, system: str, content: str, schema: dict,
+                 effort: str, max_tokens: int = 8000) -> dict:
+    """Claude に schema どおりの JSON で答えさせ、dict にして返す。"""
     response = client.beta.messages.create(
         model=MODEL,
-        max_tokens=8000,
+        max_tokens=max_tokens,
         betas=["server-side-fallback-2026-07-01"],
         fallbacks="default",
         output_config={
-            "effort": "low",
-            "format": {"type": "json_schema", "schema": SCHEMA},
+            "effort": effort,
+            "format": {"type": "json_schema", "schema": schema},
         },
-        system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": f"メニュー名: {menu_name}"}],
+        system=system,
+        messages=[{"role": "user", "content": content}],
     )
     if response.stop_reason == "refusal":
-        raise RuntimeError("Claude が分析を断りました")
+        raise RuntimeError("Claude が回答を断りました")
     if response.stop_reason == "max_tokens":
         raise RuntimeError("出力が上限に達して途中で切れました")
     text = next(b.text for b in response.content if b.type == "text")
     return json.loads(text)
+
+
+def analyze(client: anthropic.Anthropic, menu_name: str) -> dict:
+    return request_json(client, SYSTEM_PROMPT, f"メニュー名: {menu_name}", SCHEMA, effort="low")
 
 
 def open_db() -> tuple[Workbook, object]:
