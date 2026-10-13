@@ -5,12 +5,16 @@
 ## プロジェクト概要
 
 - プロジェクト名: test12
-- 現在はコードがまだない初期状態です。技術スタックやディレクトリ構成が決まったら、このセクションに追記してください。
+- 料理のメニュー名を Claude API（`claude-opus-5-5`）で分析し、食材・形態・柔らかさ・味を Excel（`menu_db.xlsx`）に蓄積するツール。
+- 技術スタック: Python 3.13 / anthropic SDK / openpyxl
+- `analyze_menu.py`: 本体（分類の選択肢・Excel の列・プロンプトはファイル冒頭の定数で定義）
+- `menus.txt`: 一括分析用のメニュー一覧（1行1メニュー）
 
 ## 開発コマンド
 
 <!-- 例: ビルド・テスト・Lint などのコマンドが決まったら追記する -->
-- ビルド: 未定
+- セットアップ: `pip install -r requirements.txt`（実行には環境変数 `ANTHROPIC_API_KEY` が必要）
+- 実行: `python analyze_menu.py 肉じゃが 鯖の味噌煮` / `python analyze_menu.py -f menus.txt`（`--force` で再分析）
 - テスト: 未定
 - Lint / フォーマット: 未定
 
