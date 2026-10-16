@@ -10,6 +10,7 @@
 import argparse
 import csv
 import json
+import os
 import re
 import sys
 from datetime import datetime
@@ -101,6 +102,15 @@ SYSTEM_PROMPT = """あなたは料理の分析担当です。メニュー名か�
 - 材料や調味料が指定されている場合は、それを使って作った料理として分析する。主な食材・味付けには指定されたものを必ず含め、一般的なレシピとの違いがあれば notes に書く。"""
 
 
+def make_client() -> anthropic.Anthropic:
+    """API キーを確認してクライアントを作る。未設定なら分かりやすいメッセージで終了する。"""
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        sys.exit("環境変数 ANTHROPIC_API_KEY が設定されていません。\n"
+                 "PowerShell なら次のように設定してから、もう一度実行してください:\n"
+                 '  $env:ANTHROPIC_API_KEY = "sk-ant-..."')
+    return anthropic.Anthropic()
+
+
 def request_json(client: anthropic.Anthropic, system: str, content: str, schema: dict,
                  effort: str, max_tokens: int = 8000) -> dict:
     """Claude に schema どおりの JSON で答えさせ、dict にして返す。"""
@@ -161,6 +171,7 @@ def open_db() -> tuple[Workbook, object]:
         ws.column_dimensions[chr(ord("A") + i)].width = width
     ws.freeze_panes = "A2"
     ws.auto_filter.ref = ws.dimensions
+    wb.save(DB_PATH)  # 見出しだけの状態でもファイルを作っておく
     return wb, ws
 
 
@@ -269,7 +280,7 @@ def main() -> int:
     if args.file:
         entries += read_csv(args.file)
 
-    client = anthropic.Anthropic()
+    client = make_client()
     wb, ws = open_db()
     if not entries:
         return run_form(client, wb, ws)

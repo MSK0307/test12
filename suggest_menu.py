@@ -13,7 +13,7 @@ from datetime import datetime
 import anthropic
 from openpyxl.styles import Alignment, Font, PatternFill
 
-from analyze_menu import ANALYSIS_COLUMNS, COLUMNS, DB_PATH, SCHEMA, open_db, request_json
+from analyze_menu import ANALYSIS_COLUMNS, COLUMNS, DB_PATH, SCHEMA, make_client, open_db, request_json
 
 SUGGEST_SHEET = "提案"
 SUGGEST_HEADERS = ["提案日時", "条件", "提案理由", "作り方の概要"]
@@ -99,7 +99,7 @@ def main() -> int:
     )
     print(f"{len(existing)} 件のメニューを参考に、{args.count} 件提案します（条件: {condition}）…\n")
 
-    client = anthropic.Anthropic()
+    client = make_client()
     try:
         result = request_json(client, SYSTEM_PROMPT, content, PROPOSAL_SCHEMA,
                               effort="medium", max_tokens=16000)
